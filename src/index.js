@@ -1,13 +1,22 @@
-const express = require('express');
+import express, { json } from 'express';
+import { connectDB } from './config/db.js';
+import userRoutes from './routes/user_routes.js';
+import authRoutes from './routes/auth_routes.js';
+import dotenv from 'dotenv';
+dotenv.config();
+
+connectDB();
+
 const app = express();
 
-app.use(express.json());
+app.use(json());
 
-const userRoutes = require('./routes/user_routes');
+app.use('/auth', authRoutes);
 app.use('/users', userRoutes);
 
-app.listen(3000, () => console.log('Server running on http://localhost:3000'));
-  
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
+
 
 // const express = require('express');
 // const { act } = require('react');

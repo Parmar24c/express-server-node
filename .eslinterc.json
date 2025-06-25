@@ -1,0 +1,15 @@
+{
+  "env": {
+    "node": true,
+    "es2022": true
+  },
+  "parserOptions": {
+    "sourceType": "module"
+  },
+  "extends": ["eslint:recommended"],
+  "rules": {
+    "no-undef": "error",         
+    "no-unused-vars": "warn",   
+    "semi": ["warn", "always"]
+  }
+}

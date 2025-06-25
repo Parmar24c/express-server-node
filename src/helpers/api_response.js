@@ -1,8 +1,19 @@
-let apiResponse = (status, message, data = null, otherOptions = null) => ({
-  'status': status,
-  'message': message,
-  "data": data,
-  ...otherOptions,
-});
+const apiResponse = (status, message, data = null, otherOptions = null) => {
+  const response = {
+    status,
+    message,
+  };
 
-module.exports = apiResponse;
+  if (data !== null) {
+    response.data = data;
+  }
+
+  if (otherOptions !== null) {
+    Object.assign(response, otherOptions);
+    // OR: response = { ...response, ...otherOptions };
+  }
+
+  return response;
+};
+
+export default apiResponse;
