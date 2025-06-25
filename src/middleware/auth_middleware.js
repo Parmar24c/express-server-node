@@ -20,6 +20,6 @@ export function verifyToken(req, res, next) {
     }
     next();
   } catch (err) {
-    return res.status(403).json(apiResponse(false, 'Invalid or expired token.', null, { error: err.message }));
+    return res.status(401).json(apiResponse(false, 'Invalid or expired token.', null, { error: err.message }));
   }
 }

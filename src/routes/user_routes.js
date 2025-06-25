@@ -21,6 +21,7 @@ const Paths = {
 router.get(Paths.getAll, verifyToken, ctr.getAllUsers);
 router.get(Paths.getActive, verifyToken, ctr.getActiveUsers);
 router.get(Paths.getById, verifyToken, ctr.getUserById);
+
 router.post(Paths.update, verifyToken, ctr.updateUserDetails);
 router.post(Paths.updateActive, verifyToken, ctr.updateActiveStatus);
 router.post(Paths.delete, verifyToken, ctr.deleteUser);
