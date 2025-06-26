@@ -2,6 +2,8 @@ import Product from '../models/product_model.js';
 import Category from '../models/category_model.js';
 import apiResponse from '../helpers/api_response.js';
 import { validateId } from '../helpers/validate_objectid.js';
+import { addProductValidator, updateProductValidator } from '../model_validators/product_validator.js';
+import joiErrorResponse from '../helpers/joi_error_response.js';
 
 /// --------- ONLY FINDS PRODUCTS USING POLULATE (JOIN CATEGORY COLLECTION) --------------
 // export async function getAllProducts(req, res) {
@@ -124,11 +126,13 @@ export async function getProductById(req, res) {
 
 export async function addProduct(req, res) {
     try {
-        const { name, description, price, stock, category } = req.body;
 
-        if (!name || !price || !stock || !category) {
-            return res.json(apiResponse(false, 'All required fields must be provided'));
+        const { error } = addProductValidator.validate(req.body);
+        if (error) {
+            return res.json(joiErrorResponse(error));
         }
+
+        const { name, description, price, stock, category } = req.body;
 
         if (!validateId(category)) return res.json(apiResponse(false, 'Invalid Category ID'));
 
@@ -146,9 +150,14 @@ export async function addProduct(req, res) {
 }
 
 export async function updateProduct(req, res) {
-    const { id } = req.params;
-
     try {
+
+        const { error } = updateProductValidator.validate(req.body);
+        if (error) {
+            return res.json(joiErrorResponse(error));
+        }
+
+        const { id } = req.params;
         const product = await Product.findOne({ _id: id, isDeleted: false });
         if (!product) return res.json(apiResponse(false, 'Product not found'));
 
@@ -159,7 +168,11 @@ export async function updateProduct(req, res) {
         }
 
         const exists = await Product.findOne({ name, isDeleted: false });
-        if (exists) return res.json(apiResponse(false, 'Product already exists. Enter different name for product.'));
+
+        if (exists && exists._id.toString() !== id.toString()) {
+            return res.json(apiResponse(false, 'Product already exists. Enter different name for product.'));
+        }
+
 
         product.name = name ?? product.name;
         product.description = description ?? product.description;
