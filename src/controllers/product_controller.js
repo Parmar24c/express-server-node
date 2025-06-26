@@ -126,9 +126,13 @@ export async function addProduct(req, res) {
     try {
         const { name, description, price, stock, category } = req.body;
 
+        if (!name || !price || !stock || !category) {
+            return res.json(apiResponse(false, 'All required fields must be provided'));
+        }
+
         if (!validateId(category)) return res.json(apiResponse(false, 'Invalid Category ID'));
 
-        const cat = await Category.findOne({ _id: category, isDeleted: false });
+        const cat = await Category.findOne({ _id: category, isDeleted: false, active: true });
         if (!cat) return res.json(apiResponse(false, 'Category not found'));
 
         const exists = await Product.findOne({ name, isDeleted: false });
