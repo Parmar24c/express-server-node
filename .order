@@ -1,9 +1,0 @@
-.vscode
-node_modules
-src
-src/config
-src/helpers
-src/models
-src/middleware
-src/controllers
-src/routes

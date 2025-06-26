@@ -5,7 +5,6 @@ const categorySchema = new mongoose.Schema({
     type: String,
     required: true,
     trim: true,
-    unique: true,
   },
   description: {
     type: String,
@@ -21,6 +20,9 @@ const categorySchema = new mongoose.Schema({
     default: false,
   }
 }, { timestamps: true });
+
+// 🛠️ Add partial index:
+categorySchema.index({ name: 1 }, { unique: true, partialFilterExpression: { isDeleted: false } });
 
 const Category = mongoose.model('Category', categorySchema);
 export default Category;
