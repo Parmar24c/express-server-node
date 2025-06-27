@@ -1,8 +1,6 @@
 import jwt from 'jsonwebtoken';
-import apiResponse from '../helpers/api_response.js';
 import mongoose from 'mongoose';
-
-const JWT_SECRET = process.env.JWT_SECRET || 'secretkey';
+import Constants from '../config/constants.js';
 
 export function verifyToken(req, res, next) {
   const authHeader = req.headers['authorization'];
@@ -13,7 +11,7 @@ export function verifyToken(req, res, next) {
   }
 
   try {
-    const decoded = jwt.verify(token, JWT_SECRET);
+    const decoded = jwt.verify(token, Constants.JWT_SECRET);
     req.user = decoded; // Save user info (like userId) to request
     if (req.params.id && !mongoose.Types.ObjectId.isValid(req.params.id)) {
       return res.sendData(false, 'Invalid ID.');

@@ -3,14 +3,14 @@ const apiResponse = (status, message, data = null, otherOptions = null) => {
     status,
     message,
   };
+  
+   if (otherOptions !== null) {
+    Object.assign(response, otherOptions);
+    // OR: response = { ...response, ...otherOptions };
+  }
 
   if (data !== null) {
     response.data = data;
-  }
-
-  if (otherOptions !== null) {
-    Object.assign(response, otherOptions);
-    // OR: response = { ...response, ...otherOptions };
   }
 
   return response;

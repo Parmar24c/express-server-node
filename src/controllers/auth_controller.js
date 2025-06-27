@@ -1,7 +1,6 @@
+import { generateToken } from '../helpers/generate_token.js';
 import User from '../models/user_model.js';
 import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
-import apiResponse from '../helpers/api_response.js';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'secretkey';
 
@@ -31,7 +30,7 @@ export async function login(req, res) {
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) return res.sendData(false, 'Invalid email or password');
 
-        const token = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: '1d' });
+        const token = generateToken({ userId: user._id });
 
         res.sendData(true, "Login successfully", user, { token: token });
     } catch (err) {

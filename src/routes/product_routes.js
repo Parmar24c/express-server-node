@@ -2,6 +2,8 @@
 import { Router } from 'express';
 import { verifyToken } from '../middleware/auth_middleware.js';
 import * as ctr from '../controllers/product_controller.js';
+import validateBody from '../middleware/validate_body.js';
+import { addProductValidator, filterProductValidator, updateProductValidator } from '../model_validators/product_validator.js';
 
 // 2. MAKE ROUTES INSTANCE
 const router = Router();
@@ -9,6 +11,7 @@ const router = Router();
 // 3. ROUTE PATHS
 const Paths = {
   getAll: '/',
+  getFiltered: '/filtered',
   getById: '/:id',
   add: '/add',
   update: '/update/:id',
@@ -18,10 +21,11 @@ const Paths = {
 
 // 4. ROUTES DEFINE WITH TOKEN PROTECTION
 router.get(Paths.getAll, verifyToken, ctr.getAllProducts);
+router.get(Paths.getFiltered, verifyToken, validateBody(filterProductValidator), ctr.getFilteredProducts);
 router.get(Paths.getById, verifyToken, ctr.getProductById);
 
-router.post(Paths.add, verifyToken, ctr.addProduct);
-router.post(Paths.update, verifyToken, ctr.updateProduct);
+router.post(Paths.add, verifyToken, validateBody(addProductValidator), ctr.addProduct);
+router.post(Paths.update, verifyToken, validateBody(updateProductValidator), ctr.updateProduct);
 router.post(Paths.updateActive, verifyToken, ctr.updateActiveStatus);
 router.post(Paths.delete, verifyToken, ctr.deleteProduct);
 

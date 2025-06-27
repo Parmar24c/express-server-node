@@ -19,6 +19,19 @@ import { addProductValidator, updateProductValidator } from '../model_validators
 // }
 /// ---------------------------------------------------------------------------------------
 
+/// ------- [ Aggregation pipelines use stages ] ------------------------------------------
+// [
+//     { $match: { active: true } },             // like WHERE
+//     { $lookup: { ... } },                     // like JOIN
+//     { $unwind: "$category" },                 // flatten array fields
+//     { $group: { _id: "$category", total: { $sum: "$price" } } }, // GROUP BY
+//     { $project: { _id: 0, total: 1 } },       // SELECT specific fields
+//     { $sort: { createdAt: -1 } },             // ORDER BY
+//     { $skip: 0 },                             // OFFSET
+//     { $limit: 10 }                            // LIMIT
+// ]
+/// ---------------------------------------------------------------------------------------
+
 export async function getAllProducts(req, res) {
     try {
         const { active } = req.query;
@@ -108,6 +121,81 @@ export async function getAllProducts(req, res) {
     }
 }
 
+export async function getFilteredProducts(req, res) {
+    try {
+        const {
+            minPrice,
+            maxPrice,
+            sortByPrice,
+            sortByCreatedAt,
+            sortByName,
+            page = 1,
+            limit = 10,
+            categoryId,
+            search
+        } = req.body;
+
+        const matchStage = { isDeleted: false, active: true };
+
+        if (minPrice || maxPrice) {
+            matchStage.price = {};
+            if (minPrice) matchStage.price.$gte = parseFloat(minPrice);
+            if (maxPrice) matchStage.price.$lte = parseFloat(maxPrice);
+        }
+
+        if (categoryId) {
+            matchStage.category = new mongoose.Types.ObjectId(categoryId);
+        }
+
+        if (search) {
+            matchStage.$or = [
+                { name: { $regex: search, $options: 'i' } },
+                { description: { $regex: search, $options: 'i' } }
+            ];
+        }
+
+        const sortStage = {};
+        if (sortByPrice) sortStage.price = sortByPrice === 'asc' ? 1 : -1;
+        if (sortByName) sortStage.name = sortByName === 'asc' ? 1 : -1;
+        if (sortByCreatedAt) sortStage.createdAt = sortByCreatedAt === 'asc' ? 1 : -1;
+
+        const pipeline = [
+            { $match: matchStage },
+            {
+                $lookup: {
+                    from: 'categories',
+                    localField: 'category',
+                    foreignField: '_id',
+                    as: 'category'
+                }
+            },
+            { $unwind: '$category' },
+            { $match: { 'category.active': true } },
+            {
+                $project: {
+                    name: 1,
+                    description: 1,
+                    price: 1,
+                    stock: 1,
+                    active: 1,
+                    createdAt: 1,
+                    category: { _id: '$category._id', name: '$category.name' }
+                }
+            },
+            Object.keys(sortStage).length ? { $sort: sortStage } : null,
+            { $skip: (parseInt(page) - 1) * parseInt(limit) },
+            { $limit: parseInt(limit) }
+        ].filter(stage => stage !== null);
+
+        const products = await Product.aggregate(pipeline);
+
+        res.sendData(true, 'Advanced products fetched', products);
+    } catch (err) {
+        res.serverError('Failed to fetch advanced products', err);
+    }
+}
+
+
 
 export async function getProductById(req, res) {
     const { id } = req.params;
@@ -129,12 +217,6 @@ export async function getProductById(req, res) {
 
 export async function addProduct(req, res) {
     try {
-
-        const { error } = addProductValidator.validate(req.body);
-        if (error) {
-            return res.joiValidationError(error);
-        }
-
         const { name, description, price, stock, category } = req.body;
 
         if (!validateId(category)) return res.sendData(false, 'Invalid Category ID');
@@ -153,12 +235,7 @@ export async function addProduct(req, res) {
 }
 
 export async function updateProduct(req, res) {
-    try {
-
-        const { error } = updateProductValidator.validate(req.body);
-        if (error) {
-            return res.joiValidationError(error);
-        }
+    try {       
 
         const { id } = req.params;
         const product = await Product.findOne({ _id: id, isDeleted: false });
@@ -190,7 +267,7 @@ export async function updateProduct(req, res) {
     }
 }
 
-export async function updateActiveStatus(req, res) {    
+export async function updateActiveStatus(req, res) {
     try {
         const { id } = req.params;
         const product = await Product.findOne({ _id: id, isDeleted: false });
