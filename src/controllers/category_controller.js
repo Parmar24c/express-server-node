@@ -1,5 +1,4 @@
 import Category from '../models/category_model.js';
-import apiResponse from '../helpers/api_response.js';
 
 export async function getAllCategories(req, res) {
     try {
@@ -11,30 +10,31 @@ export async function getAllCategories(req, res) {
         }
 
         const categories = await Category.find(filter);
-        res.json(apiResponse(true, 'All categories fetched', categories));
+        res.sendData(true, 'All categories fetched', categories);
     } catch (err) {
-        res.status(500).json(apiResponse(false, 'Failed to fetch categories', null, { error: err.message }));
+        res.serverError('Failed to fetch categories', err);
     }
 }
 
 export async function getActiveCategories(_, res) {
     try {
         const categories = await Category.find({ isDeleted: false, active: true });
-        res.json(apiResponse(true, 'Active categories fetched', categories));
+        res.sendData(true, 'Active categories fetched', categories);
     } catch (err) {
-        res.status(500).json(apiResponse(false, 'Failed to fetch active categories', null, { error: err.message }));
+        res.serverError('Failed to fetch active categories', err);
     }
 }
 
 export async function getCategoryById(req, res) {
-    const { id } = req.params;
     try {
+        const { id } = req.params;
+
         const category = await Category.findOne({ _id: id, isDeleted: false });
         category
-            ? res.json(apiResponse(true, 'Category details fetched', category))
-            : res.json(apiResponse(false, 'Category not found'));
+            ? res.sendData(true, 'Category details fetched', category)
+            : res.sendData(false, 'Category not found');
     } catch (err) {
-        res.status(500).json(apiResponse(false, 'Error fetching category', null, { error: err.message }));
+        res.serverError('Error fetching category', err);
     }
 }
 
@@ -42,65 +42,69 @@ export async function getCategoryById(req, res) {
 export async function addCategory(req, res) {
     try {
         const { name, description } = req.body;
+
         const category = await Category.findOne({ name, isDeleted: false });
-        if (category) return res.json(apiResponse(false, 'Category already exists'));
+        if (category) return res.sendData(false, 'Category already exists');
 
         const newCategory = await Category.create({ name, description })
 
-        res.json(apiResponse(true, 'Category created', newCategory));
+        res.sendData(true, 'Category created', newCategory);
     } catch (err) {
-        res.status(500).json(apiResponse(false, 'Update failed', null, { error: err.message }));
+        res.serverError('Update failed', err);
     }
 }
 
 
 export async function updateCategory(req, res) {
-    const { id } = req.params;
     try {
+        const { id } = req.params;
         const { name, description } = req.body;
+
         const category = await Category.findOne({ _id: id, isDeleted: false });
-        if (!category) return res.json(apiResponse(false, 'Category not found'));
+        if (!category) return res.sendData(false, 'Category not found');
 
         category.name = name?.toString() ?? category.name;
         category.description = description?.toString() ?? category.description;
         await category.save();
 
-        res.json(apiResponse(true, 'Category details updated', category));
+        res.sendData(true, 'Category details updated', category);
     } catch (err) {
-        res.status(500).json(apiResponse(false, 'Update failed', null, { error: err.message }));
+        res.serverError('Update failed', err);
     }
 }
 
 export async function updateActiveStatus(req, res) {
-    const { id } = req.params;
     try {
+        const { id } = req.params;
+
         const category = await Category.findOne({ _id: id, isDeleted: false });
-        if (!category) return res.json(apiResponse(false, 'Category not found'));
+        if (!category) return res.sendData(false, 'Category not found');
 
         category.active = req.body?.active ?? !category.active;
         await category.save();
 
-        res.json(apiResponse(true, 'Active status updated', category));
+        res.sendData(true, 'Active status updated', category);
     } catch (err) {
-        res.status(500).json(apiResponse(false, 'Failed to update status', null, { error: err.message }));
+        res.serverError('Failed to update status', err);
     }
 }
 
 export async function deleteCategory(req, res) {
-    const { id } = req.params;
     try {
+        const { id } = req.params;
+
         const category = await Category.findOne({ _id: id, isDeleted: false });
         if (!category) {
             const categoryDeleted = await Category.findOne({ _id: id, isDeleted: true });
             if (categoryDeleted) {
-                return res.json(apiResponse(false, 'Category already deleted'));
+                return res.sendData(false, 'Category already deleted');
             }
-            return res.json(apiResponse(false, 'Category not found'));
+            return res.sendData(false, 'Category not found');
         }
         category.isDeleted = true;
         await category.save();
-        res.json(apiResponse(true, 'Category deleted successfully'));
+        res.sendData('Category deleted successfully');
     } catch (err) {
-        res.status(500).json(apiResponse(false, 'Delete failed', null, { error: err.message }));
+        res.serverError('Delete failed', err);
     }
 }

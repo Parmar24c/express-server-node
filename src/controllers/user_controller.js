@@ -1,69 +1,68 @@
 import User from '../models/user_model.js';
-import apiResponse from '../helpers/api_response.js';
 import bcrypt from 'bcryptjs';
 
 export async function getAllUsers(_, res) {
   try {
     const users = await User.find().select('-password');
-    res.json(apiResponse(true, 'All users fetched', users));
+    res.sendData(true, 'All users fetched', users);
   } catch (err) {
-    res.status(500).json(apiResponse(false, 'Failed to fetch users', null, { error: err.message }));
+    res.serverError('Failed to fetch users', err);
   }
 }
 
 export async function getActiveUsers(_, res) {
   try {
     const users = await User.find({ active: true }).select('-password');
-    res.json(apiResponse(true, 'Active users fetched', users));
+    res.sendData(true, 'Active users fetched', users);
   } catch (err) {
-    res.status(500).json(apiResponse(false, 'Failed to fetch active users', null, { error: err.message }));
+    res.serverError('Failed to fetch active users', err);
   }
 }
 
 export async function getUserById(req, res) {
-  const { id } = req.params;
-
   try {
+    const { id } = req.params;
+
     const user = await User.findById(id).select('-password');
     user
-      ? res.json(apiResponse(true, 'User details fetched', user))
-      : res.json(apiResponse(false, 'User not found'));
+      ? res.sendData(true, 'User details fetched', user)
+      : res.sendData(false, 'User not found');
   } catch (err) {
-    res.status(500).json(apiResponse(false, 'Error fetching user', null, { error: err.message }));
+    res.serverError('Error fetching user', err);
   }
 }
 
 export async function updateUserDetails(req, res) {
-  const { id } = req.params;
-
   try {
+    const { id } = req.params;
     const { name, email } = req.body;
+
     const user = await User.findById(id).select("-password");
-    if (!user) return res.json(apiResponse(false, 'User not found'));
+    if (!user) return res.sendData(false, 'User not found');
 
     user.name = name ?? user.name;
     user.email = email ?? user.email;
     await user.save();
 
-    res.json(apiResponse(true, 'User details updated', user));
+    res.sendData(true, 'User details updated', user);
   } catch (err) {
-    res.status(500).json(apiResponse(false, 'Update failed', null, { error: err.message }));
+    res.serverError('Update failed', err);
   }
 }
 
 export async function updateActiveStatus(req, res) {
-  const { id } = req.params;
-
   try {
+    const { id } = req.params;
+
     const user = await User.findById(id).select(['_id', 'name', 'active', 'updatedAt']);
-    if (!user) return res.json(apiResponse(false, 'User not found'));
+    if (!user) return res.sendData(false, 'User not found');
 
     user.active = req.body?.active ?? !user.active;
     await user.save();
 
-    res.json(apiResponse(true, 'Active status updated', user));
+    res.sendData(true, 'Active status updated', user);
   } catch (err) {
-    res.status(500).json(apiResponse(false, 'Failed to update status', null, { error: err.message }));
+    res.serverError('Failed to update status', err);
   }
 }
 
@@ -71,27 +70,27 @@ export async function changePassword(req, res) {
   try {
     const { oldPassword, newPassword } = req.body;
     const user = await User.findById(req.params.id);
-    if (!user) return res.json(apiResponse(false, 'User not found'));
+    if (!user) return res.sendData(false, 'User not found');
 
     const isMatch = await bcrypt.compare(oldPassword, user.password);
-    if (!isMatch) return res.json(apiResponse(false, 'Old password is incorrect'));
+    if (!isMatch) return res.sendData(false, 'Old password is incorrect');
 
     user.password = await bcrypt.hash(newPassword, 10);
     await user.save();
 
-    res.json(apiResponse(true, 'Password changed successfully'));
+    res.sendData(true, 'Password changed successfully');
   } catch (err) {
-    res.status(500).json(apiResponse(false, 'Password change failed', null, { error: err.message }));
+    res.serverError('Password change failed', err);
   }
 }
 
 export async function deleteUser(req, res) {
-  const { id } = req.params;
-
   try {
+    const { id } = req.params;
+
     await User.findByIdAndDelete(id);
-    res.json(apiResponse(true, 'User deleted successfully'));
+    res.sendData(true, 'User deleted successfully');
   } catch (err) {
-    res.status(500).json(apiResponse(false, 'Delete failed', null, { error: err.message }));
+    res.serverError('Delete failed', err);
   }
 }

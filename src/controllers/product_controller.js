@@ -1,9 +1,7 @@
 import Product from '../models/product_model.js';
 import Category from '../models/category_model.js';
-import apiResponse from '../helpers/api_response.js';
 import { validateId } from '../helpers/validate_objectid.js';
 import { addProductValidator, updateProductValidator } from '../model_validators/product_validator.js';
-import joiErrorResponse from '../helpers/joi_error_response.js';
 
 /// --------- ONLY FINDS PRODUCTS USING POLULATE (JOIN CATEGORY COLLECTION) --------------
 // export async function getAllProducts(req, res) {
@@ -104,9 +102,9 @@ export async function getAllProducts(req, res) {
         ]);
 
 
-        res.json(apiResponse(true, 'All products fetched', products));
+        res.sendData(true, 'All products fetched', products);
     } catch (err) {
-        res.status(500).json(apiResponse(false, 'Failed to fetch products', null, { error: err.message }));
+        res.serverError('Failed to fetch products', null);
     }
 }
 
@@ -116,36 +114,41 @@ export async function getProductById(req, res) {
 
     try {
         const product = await Product.findOne({ _id: id, isDeleted: false }).populate('category', 'name');
-        product
-            ? res.json(apiResponse(true, 'Product found', product))
-            : res.json(apiResponse(false, 'Product not found'));
+
+        if (product) {
+            return res.sendData(true, 'Product found', product);
+        } else {
+            return res.sendData(false, 'Product not found');
+        }
+
     } catch (err) {
-        res.status(500).json(apiResponse(false, 'Error fetching product', null, { error: err.message }));
+        return res.serverError('Error fetching product', err);
     }
 }
+
 
 export async function addProduct(req, res) {
     try {
 
         const { error } = addProductValidator.validate(req.body);
         if (error) {
-            return res.json(joiErrorResponse(error));
+            return res.joiValidationError(error);
         }
 
         const { name, description, price, stock, category } = req.body;
 
-        if (!validateId(category)) return res.json(apiResponse(false, 'Invalid Category ID'));
+        if (!validateId(category)) return res.sendData(false, 'Invalid Category ID');
 
         const cat = await Category.findOne({ _id: category, isDeleted: false, active: true });
-        if (!cat) return res.json(apiResponse(false, 'Category not found'));
+        if (!cat) return res.sendData(false, 'Category not found');
 
         const exists = await Product.findOne({ name, isDeleted: false });
-        if (exists) return res.json(apiResponse(false, 'Product already exists'));
+        if (exists) return res.sendData(false, 'Product already exists');
 
         const product = await Product.create({ name, description, price, stock, category });
-        res.json(apiResponse(true, 'Product added successfully', product));
+        res.sendData(true, 'Product added successfully', product);
     } catch (err) {
-        res.status(500).json(apiResponse(false, 'Failed to add product', null, { error: err.message }));
+        res.serverError('Failed to add product', err);
     }
 }
 
@@ -154,23 +157,23 @@ export async function updateProduct(req, res) {
 
         const { error } = updateProductValidator.validate(req.body);
         if (error) {
-            return res.json(joiErrorResponse(error));
+            return res.joiValidationError(error);
         }
 
         const { id } = req.params;
         const product = await Product.findOne({ _id: id, isDeleted: false });
-        if (!product) return res.json(apiResponse(false, 'Product not found'));
+        if (!product) return res.sendData(false, 'Product not found');
 
         const { name, description, price, stock, category } = req.body;
 
         if (category && !validateObjectId(category)) {
-            return res.json(apiResponse(false, 'Invalid Category ID'));
+            return res.sendData(false, 'Invalid Category ID');
         }
 
         const exists = await Product.findOne({ name, isDeleted: false });
 
-        if (exists && exists._id.toString() !== id.toString()) {
-            return res.json(apiResponse(false, 'Product already exists. Enter different name for product.'));
+        if (exists && exists._id.toString() !== id.toString) {
+            return res.sendData(false, 'Product already exists. Enter different name for product.');
         }
 
 
@@ -181,44 +184,42 @@ export async function updateProduct(req, res) {
         product.category = category ?? product.category;
 
         await product.save();
-        res.json(apiResponse(true, 'Product updated successfully', product));
+        res.sendData(true, 'Product updated successfully', product);
     } catch (err) {
-        res.status(500).json(apiResponse(false, 'Update failed', null, { error: err.message }));
+        res.serverError('Update failed', err);
     }
 }
 
-export async function updateActiveStatus(req, res) {
-    const { id } = req.params;
-
+export async function updateActiveStatus(req, res) {    
     try {
+        const { id } = req.params;
         const product = await Product.findOne({ _id: id, isDeleted: false });
-        if (!product) return res.json(apiResponse(false, 'Product not found'));
+        if (!product) return res.sendData(false, 'Product not found');
 
         product.active = req.body?.active ?? !product.active;
         await product.save();
 
-        res.json(apiResponse(true, 'Active status updated', product));
+        res.sendData(true, 'Active status updated', product);
     } catch (err) {
-        res.status(500).json(apiResponse(false, 'Failed to update status', null, { error: err.message }));
+        res.serverError('Failed to update status', err);
     }
 }
 
 export async function deleteProduct(req, res) {
-    const { id } = req.params;
-
     try {
+        const { id } = req.params;
         const product = await Product.findOne({ _id: id, isDeleted: false });
         if (!product) {
             const deleted = await Product.findOne({ _id: id, isDeleted: true });
-            if (deleted) return res.json(apiResponse(false, 'Product already deleted'));
-            return res.json(apiResponse(false, 'Product not found'));
+            if (deleted) return res.sendData(false, 'Product already deleted');
+            return res.sendData(false, 'Product not found');
         }
 
         product.isDeleted = true;
         await product.save();
 
-        res.json(apiResponse(true, 'Product deleted successfully'));
+        res.sendData(true, 'Product deleted successfully');
     } catch (err) {
-        res.status(500).json(apiResponse(false, 'Delete failed', null, { error: err.message }));
+        res.serverError('Delete failed', err);
     }
 }
