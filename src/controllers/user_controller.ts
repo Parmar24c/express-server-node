@@ -1,25 +1,26 @@
+import { Request, Response } from 'express';
 import User from '../models/user_model.js';
 import bcrypt from 'bcryptjs';
 
-export async function getAllUsers(_, res) {
+export async function getAllUsers(_: Request, res: Response): Promise<any> {
   try {
     const users = await User.find().select('-password');
     res.sendData(true, 'All users fetched', users);
-  } catch (err) {
+  } catch (err: any) {
     res.serverError('Failed to fetch users', err);
   }
 }
 
-export async function getActiveUsers(_, res) {
+export async function getActiveUsers(_: Request, res: Response): Promise<any> {
   try {
     const users = await User.find({ active: true }).select('-password');
     res.sendData(true, 'Active users fetched', users);
-  } catch (err) {
+  } catch (err: any) {
     res.serverError('Failed to fetch active users', err);
   }
 }
 
-export async function getUserById(req, res) {
+export async function getUserById(req: Request, res: Response): Promise<any> {
   try {
     const { id } = req.params;
 
@@ -27,17 +28,17 @@ export async function getUserById(req, res) {
     user
       ? res.sendData(true, 'User details fetched', user)
       : res.sendData(false, 'User not found');
-  } catch (err) {
+  } catch (err: any) {
     res.serverError('Error fetching user', err);
   }
 }
 
-export async function updateUserDetails(req, res) {
+export async function updateUserDetails(req: Request, res: Response): Promise<any> {
   try {
     const { id } = req.params;
     const { name, email } = req.body;
 
-    const user = await User.findById(id).select("-password");
+    const user = await User.findById(id).select('-password');
     if (!user) return res.sendData(false, 'User not found');
 
     user.name = name ?? user.name;
@@ -45,12 +46,12 @@ export async function updateUserDetails(req, res) {
     await user.save();
 
     res.sendData(true, 'User details updated', user);
-  } catch (err) {
+  } catch (err: any) {
     res.serverError('Update failed', err);
   }
 }
 
-export async function updateActiveStatus(req, res) {
+export async function updateActiveStatus(req: Request, res: Response) : Promise<any>{
   try {
     const { id } = req.params;
 
@@ -61,12 +62,12 @@ export async function updateActiveStatus(req, res) {
     await user.save();
 
     res.sendData(true, 'Active status updated', user);
-  } catch (err) {
+  } catch (err: any) {
     res.serverError('Failed to update status', err);
   }
 }
 
-export async function changePassword(req, res) {
+export async function changePassword(req: Request, res: Response) : Promise<any>{
   try {
     const { oldPassword, newPassword } = req.body;
     const user = await User.findById(req.params.id);
@@ -79,18 +80,18 @@ export async function changePassword(req, res) {
     await user.save();
 
     res.sendData(true, 'Password changed successfully');
-  } catch (err) {
+  } catch (err: any) {
     res.serverError('Password change failed', err);
   }
 }
 
-export async function deleteUser(req, res) {
+export async function deleteUser(req: Request, res: Response) : Promise<any>{
   try {
     const { id } = req.params;
 
     await User.findByIdAndDelete(id);
     res.sendData(true, 'User deleted successfully');
-  } catch (err) {
+  } catch (err: any) {
     res.serverError('Delete failed', err);
   }
 }

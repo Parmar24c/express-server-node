@@ -1,3 +1,5 @@
+import { Request, Response } from 'express';
+import mongoose from 'mongoose';
 import Product from '../models/product_model.js';
 import Category from '../models/category_model.js';
 import { validateId } from '../helpers/validate_objectid.js';
@@ -32,11 +34,11 @@ import { addProductValidator, updateProductValidator } from '../model_validators
 // ]
 /// ---------------------------------------------------------------------------------------
 
-export async function getAllProducts(req, res) {
+export async function getAllProducts(req: Request, res: Response) {
     try {
         const { active } = req.query;
 
-        const matchStage = {
+        const matchStage: Record<string, any> = {
             isDeleted: false
         };
 
@@ -115,13 +117,13 @@ export async function getAllProducts(req, res) {
         ]);
 
 
-        res.sendData(true, 'All products fetched', products);
-    } catch (err) {
-        res.serverError('Failed to fetch products', null);
+        res.sendData(true, 'All products fetched successfully', products);
+    } catch (err: any) {
+        res.serverError('Failed to fetch products', err);
     }
 }
 
-export async function getFilteredProducts(req, res) {
+export async function getFilteredProducts(req: Request, res: Response) {
     try {
         const {
             minPrice,
@@ -132,10 +134,11 @@ export async function getFilteredProducts(req, res) {
             page = 1,
             limit = 10,
             categoryId,
-            search
+            search,
+            demo
         } = req.body;
 
-        const matchStage = { isDeleted: false, active: true };
+        const matchStage: Record<string, any> = { isDeleted: false, active: true };
 
         if (minPrice || maxPrice) {
             matchStage.price = {};
@@ -154,7 +157,7 @@ export async function getFilteredProducts(req, res) {
             ];
         }
 
-        const sortStage = {};
+        const sortStage: Record<string, 1 | -1> = {};
         if (sortByPrice) sortStage.price = sortByPrice === 'asc' ? 1 : -1;
         if (sortByName) sortStage.name = sortByName === 'asc' ? 1 : -1;
         if (sortByCreatedAt) sortStage.createdAt = sortByCreatedAt === 'asc' ? 1 : -1;
@@ -190,14 +193,12 @@ export async function getFilteredProducts(req, res) {
         const products = await Product.aggregate(pipeline);
 
         res.sendData(true, 'Advanced products fetched', products);
-    } catch (err) {
+    } catch (err: any) {
         res.serverError('Failed to fetch advanced products', err);
     }
 }
 
-
-
-export async function getProductById(req, res) {
+export async function getProductById(req: Request, res: Response): Promise<any> {
     const { id } = req.params;
 
     try {
@@ -209,13 +210,12 @@ export async function getProductById(req, res) {
             return res.sendData(false, 'Product not found');
         }
 
-    } catch (err) {
+    } catch (err: any) {
         return res.serverError('Error fetching product', err);
     }
 }
 
-
-export async function addProduct(req, res) {
+export async function addProduct(req: Request, res: Response): Promise<any> {
     try {
         const { name, description, price, stock, category } = req.body;
 
@@ -229,13 +229,13 @@ export async function addProduct(req, res) {
 
         const product = await Product.create({ name, description, price, stock, category });
         res.sendData(true, 'Product added successfully', product);
-    } catch (err) {
+    } catch (err: any) {
         res.serverError('Failed to add product', err);
     }
 }
 
-export async function updateProduct(req, res) {
-    try {       
+export async function updateProduct(req: Request, res: Response): Promise<any> {
+    try {
 
         const { id } = req.params;
         const product = await Product.findOne({ _id: id, isDeleted: false });
@@ -243,16 +243,15 @@ export async function updateProduct(req, res) {
 
         const { name, description, price, stock, category } = req.body;
 
-        if (category && !validateObjectId(category)) {
+        if (category && !validateId(category)) {
             return res.sendData(false, 'Invalid Category ID');
         }
 
         const exists = await Product.findOne({ name, isDeleted: false });
 
-        if (exists && exists._id.toString() !== id.toString) {
+        if (exists && exists._id.toString() !== id.toString()) {
             return res.sendData(false, 'Product already exists. Enter different name for product.');
         }
-
 
         product.name = name ?? product.name;
         product.description = description ?? product.description;
@@ -262,12 +261,12 @@ export async function updateProduct(req, res) {
 
         await product.save();
         res.sendData(true, 'Product updated successfully', product);
-    } catch (err) {
+    } catch (err: any) {
         res.serverError('Update failed', err);
     }
 }
 
-export async function updateActiveStatus(req, res) {
+export async function updateActiveStatus(req: Request, res: Response): Promise<any> {
     try {
         const { id } = req.params;
         const product = await Product.findOne({ _id: id, isDeleted: false });
@@ -277,12 +276,12 @@ export async function updateActiveStatus(req, res) {
         await product.save();
 
         res.sendData(true, 'Active status updated', product);
-    } catch (err) {
+    } catch (err: any) {
         res.serverError('Failed to update status', err);
     }
 }
 
-export async function deleteProduct(req, res) {
+export async function deleteProduct(req: Request, res: Response): Promise<any> {
     try {
         const { id } = req.params;
         const product = await Product.findOne({ _id: id, isDeleted: false });
@@ -296,7 +295,7 @@ export async function deleteProduct(req, res) {
         await product.save();
 
         res.sendData(true, 'Product deleted successfully');
-    } catch (err) {
+    } catch (err: any) {
         res.serverError('Delete failed', err);
     }
 }

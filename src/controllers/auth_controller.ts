@@ -1,10 +1,9 @@
+import { Request, Response } from 'express';
 import { generateToken } from '../helpers/generate_token.js';
 import User from '../models/user_model.js';
 import bcrypt from 'bcryptjs';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'secretkey';
-
-export async function signup(req, res) {
+export async function signup(req: Request, res: Response): Promise<any> {
     try {
         const { name, email, password } = req.body;
 
@@ -14,13 +13,13 @@ export async function signup(req, res) {
         const hashedPassword = await bcrypt.hash(password, 10);
         const user = await User.create({ name, email, password: hashedPassword });
 
-        res.sendData(true, "SignUp Successfully", user);
-    } catch (err) {
+        res.sendData(true, "SignUp successfully", user);
+    } catch (err: any) {
         res.serverError('Signup failed', err);
     }
 }
 
-export async function login(req, res) {
+export async function login(req: Request, res: Response): Promise<any> {
     try {
         const { email, password } = req.body;
 
@@ -32,8 +31,8 @@ export async function login(req, res) {
 
         const token = generateToken({ userId: user._id });
 
-        res.sendData(true, "Login successfully", user, { token: token });
-    } catch (err) {
+        res.sendData(true, "Login successfully", user, { token });
+    } catch (err: any) {
         res.serverError('Login failed', err);
     }
 }

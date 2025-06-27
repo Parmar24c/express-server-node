@@ -34,6 +34,10 @@ const productSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  demo: {
+    type: String,
+    default: '',
+  }
 }, { timestamps: true });
 
 // 🛠️ Add partial index:
