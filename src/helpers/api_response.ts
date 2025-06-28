@@ -4,12 +4,12 @@ type ApiResponse<T = any> = {
   data?: T;
 } & Record<string, any>;
 
-const apiResponse = <T = any>(
+function apiResponse<T = any>(
   status: boolean,
   message: string,
   data: T | null = null,
   otherOptions: Record<string, any> | null = null
-): ApiResponse<T> => {
+): ApiResponse<T> {
   const response: ApiResponse<T> = {
     status,
     message,

@@ -3,12 +3,7 @@ import mongoose from 'mongoose';
 import { Request, Response, NextFunction } from 'express';
 import Constants from '../config/constants.js';
 
-// Extend Express Request type for TypeScript
-interface AuthenticatedRequest extends Request {
-    user?: any; // adjust 'any' to your JWT payload type if needed
-}
-
-export function verifyToken(req: AuthenticatedRequest, res: Response, next: NextFunction): any {
+export function verifyToken(req: Request, res: Response, next: NextFunction): any {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1]; // Bearer <token>
 

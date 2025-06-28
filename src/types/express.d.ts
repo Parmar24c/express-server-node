@@ -1,4 +1,4 @@
-import { apiResponse } from '../../helpers/api_response'; // adjust if needed
+import { apiResponse } from '../helpers/api_response'; // adjust if needed
 import { Request, Response } from 'express';
 
 declare global {
@@ -9,6 +9,9 @@ declare global {
       serverError: (message: string, error: any) => Response;
       bad: (message: string, error: any) => Response;
       unauthorized: (message: string, error?: any) => Response;
+    }
+    interface Request {
+      user: any?,
     }
   }
 }

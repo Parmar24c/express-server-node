@@ -117,7 +117,7 @@ export async function getAllProducts(req: Request, res: Response) {
         ]);
 
 
-        res.sendData(true, 'All products fetched successfully', products);
+        res.sendData(true, 'All products fetched', products);
     } catch (err: any) {
         res.serverError('Failed to fetch products', err);
     }
