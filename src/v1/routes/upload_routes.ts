@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import * as ctr from '../controllers/upload_controller';
-import { imageUploader, videoUploader, pdfUploader, documentUploader } from "../middleware/upload_middleware";
+import { imageUploader, videoUploader, pdfUploader, documentUploader } from "../../common/middleware/upload_middleware";
 
 const router = Router();
 

@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { getBaseUrl } from '../helpers/get_base_url';
+import { getBaseUrl } from '../../common/helpers/get_base_url';
 
 export async function uploadSingleFile(req: Request, res: Response): Promise<any> {
     try {

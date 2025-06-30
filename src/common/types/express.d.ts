@@ -7,11 +7,12 @@ declare global {
       sendData: (success: boolean, message: string, data?: any, other?: object | null) => Response;
       joiValidationError: (error: any) => Response;
       serverError: (message: string, error: any) => Response;
-      bad: (message: string, error: any) => Response;
+      bad: (message: string, error: any | null = null) => Response;
       unauthorized: (message: string, error?: any) => Response;
     }
     interface Request {
       user: any?,
+      version?: string,
     }
   }
 }

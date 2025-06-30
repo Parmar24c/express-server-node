@@ -2,13 +2,11 @@ import express, { Application } from 'express';
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
-import { customResponseMiddleware } from './middleware/response_middleware';
-import authRoutes from './routes/auth_routes';
-import userRoutes from './routes/user_routes';
-import categoryRoutes from './routes/category_routes';
-import productRoutes from './routes/product_routes';
-import uploadRoutes from './routes/upload_routes';
-import { errorHandler } from './middleware/error_handler';
+import { customResponseMiddleware } from './common/middleware/response_middleware';
+import v1Routes from "./v1/routes/_routes";
+import v2Routes from "./v2/routes/_routes";
+import { errorHandler } from './common/middleware/error_handler';
+import { apiVersionMiddleware } from './common/middleware/api_version_middleware';
 
 const app: Application = express();
 
@@ -30,12 +28,12 @@ app.use(express.json());
 app.use(customResponseMiddleware);
 
 // Routes
-app.use('/auth', authRoutes);
-app.use('/users', userRoutes);
-app.use('/category', categoryRoutes);
-app.use('/product', productRoutes);
-app.use('/upload', uploadRoutes);
 app.use("/uploads", express.static("uploads"));
+
+// Versioned Routing
+app.use("/api/v1", v1Routes);
+app.use("/api/v2", v2Routes);
+
 
 app.use(errorHandler);
 

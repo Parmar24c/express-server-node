@@ -1,5 +1,5 @@
 import Joi from 'joi';
-import { joiValidateObjectId } from '../helpers/validate_objectid.js';
+import { joiValidateObjectId } from '../../common/helpers/validate_objectid.js';
 
 export const addProductValidator = Joi.object({
   name: Joi.string().trim().min(2).max(100).required(),

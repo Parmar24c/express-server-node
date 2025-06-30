@@ -1,6 +1,6 @@
 // 1. IMPORTS
 import { Router } from 'express';
-import { verifyToken } from '../middleware/auth_middleware.js';
+import { verifyToken } from '../../common/middleware/auth_middleware.js';
 import * as ctr from '../controllers/user_controller.js'; // HERE CTR IS ALIAS SO WE DONT HAVE TO IMPORT ALL FUNCTION MANUALLY NAMED
 
 // 2. MAKE ROUTES INSTANCE

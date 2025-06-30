@@ -1,8 +1,8 @@
 // 1. IMPORTS
 import { Router } from 'express';
-import { verifyToken } from '../middleware/auth_middleware';
+import { verifyToken } from '../../common/middleware/auth_middleware';
 import * as ctr from '../controllers/product_controller';
-import validateBody from '../middleware/validate_body';
+import validateBody from '../../common/middleware/validate_body';
 import { addProductValidator, filterProductValidator, updateProductValidator } from '../model_validators/product_validator';
 
 // 2. MAKE ROUTES INSTANCE
