@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import mongoose from 'mongoose';
-import Product from '../models/product_model.js';
-import Category from '../models/category_model.js';
+import Product from '../../common/models/product_model.js';
+import Category from '../../common/models/category_model.js';
 import { validateId } from '../../common/helpers/validate_objectid.js';
 import { addProductValidator, updateProductValidator } from '../model_validators/product_validator.js';
 

@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import Category from '../../v1/models/category_model.js';
+import Category from '../../common/models/category_model.js';
 
 // ✅ Get all categories (with optional ?active=true filtering)
 export async function getAllCategories(req: Request, res: Response) {

@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { generateToken } from '../../common/helpers/generate_token.js';
-import User from '../../v1/models/user_model.js';
+import User from '../../common/models/user_model.js';
 import bcrypt from 'bcryptjs';
 
 export async function signup(req: Request, res: Response): Promise<any> {
