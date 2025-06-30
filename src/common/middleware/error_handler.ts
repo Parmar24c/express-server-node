@@ -25,3 +25,8 @@ export function errorHandler(
     // Fallback for other errors
     return res.serverError(err.message || "Server error", err);
 }
+
+
+export function routeNotFoundHandler(req: Request, res: Response, _next: NextFunction) {
+    res.status(404).sendData(false, `Route not found: ${req.originalUrl}`);
+}

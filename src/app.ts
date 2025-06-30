@@ -5,7 +5,8 @@ import { fileURLToPath } from "url";
 import { customResponseMiddleware } from './common/middleware/response_middleware';
 import v1Routes from "./v1/routes/_routes";
 // import v2Routes from "./v2/routes/_routes";
-import { errorHandler } from './common/middleware/error_handler';
+import { errorHandler, routeNotFoundHandler } from './common/middleware/error_handler';
+import { applySecurityMiddlewares } from './common/middleware/security';
 
 const app: Application = express();
 
@@ -22,9 +23,12 @@ listOfFolders.forEach(folder => {
     }
 });
 
+
 // Middlewares
 app.use(express.json());
 app.use(customResponseMiddleware);
+
+applySecurityMiddlewares(app);
 
 // Routes
 app.use("/uploads", express.static("uploads"));
@@ -33,7 +37,8 @@ app.use("/uploads", express.static("uploads"));
 app.use("/api/v1", v1Routes);
 // app.use("/api/v2", v2Routes);
 
-
+// Error handlers
+app.use(routeNotFoundHandler);
 app.use(errorHandler);
 
 export default app;
