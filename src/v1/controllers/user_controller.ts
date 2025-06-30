@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import User from '../../common/models/user_model.js';
+import User from '../models/user_model.js';
 import bcrypt from 'bcryptjs';
 
 export async function getAllUsers(_: Request, res: Response): Promise<any> {
