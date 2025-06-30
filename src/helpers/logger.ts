@@ -21,7 +21,7 @@ class Logger {
         }
     }
 
-    static error(message: string, err: Error) {
+    static error(message: string, err: Error | null = null) {
         if (Constants.ENV.SHOW_LOGS) {
             console.log(chalk.red(`❌  ${message}`), err);
         }
