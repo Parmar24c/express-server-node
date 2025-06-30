@@ -3,7 +3,6 @@ import rateLimit from "express-rate-limit";
 import compression from "compression";
 import helmet from "helmet";
 import { corsMiddleware } from "./cors_middleware";
-import sanitizeQuery from "./senitize_request";
 
 // Initialize and apply all security middlewares
 export function applySecurityMiddlewares(app: Application) {
@@ -26,10 +25,6 @@ export function applySecurityMiddlewares(app: Application) {
 
     // Helmet for secure HTTP headers
     app.use(helmet());
-
-    // Prevent MongoDB Operator Injection
-    app.use(sanitizeQuery);
-
 
     // Enable response compression
     app.use(compression());
