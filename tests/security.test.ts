@@ -1,7 +1,7 @@
 import { Test } from "supertest";
 import request from "supertest";
 import express from "express";
-import { applySecurityMiddlewares } from "../src/common/middleware/security";
+import { applySecurityMiddlewares } from "../src/common/middleware/security/security";
 
 const app = express();
 applySecurityMiddlewares(app);
