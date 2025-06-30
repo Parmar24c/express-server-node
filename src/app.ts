@@ -6,7 +6,6 @@ import { customResponseMiddleware } from './common/middleware/response_middlewar
 import v1Routes from "./v1/routes/_routes";
 import v2Routes from "./v2/routes/_routes";
 import { errorHandler } from './common/middleware/error_handler';
-import { apiVersionMiddleware } from './common/middleware/api_version_middleware';
 
 const app: Application = express();
 
