@@ -10,5 +10,6 @@
         "phalcon"
     ],
     "a-file-icon-vscode.arrowTheme": "material",
+    "makefile.configureOnOpen": false,
 
 }

@@ -1,0 +1,47 @@
+name: express_app
+
+services:
+  mongo:
+    image: mongo:7
+    container_name: mongo_db
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - express_network
+
+  app:
+    image: parmar24c/express_app:latest
+    # build: 
+    #   context: .
+    #   dockerfile: Dockerfile  
+    container_name: express_server  
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    volumes:
+      - .:/app
+      - /app/node_modules
+    networks:
+      - express_network
+    depends_on:
+      - mongo
+    command: npm start
+
+volumes:
+  mongo_data:
+
+networks:
+  express_network:
+    driver: bridge
+
+# docker compose build
+# docker tag image_id username/reponame:tag
+# docker push username/reponame:tag
+# update build in app service with image property
+# docker compose pull
+# docker compose up
+# docker compose down ( or ctrl+c)
